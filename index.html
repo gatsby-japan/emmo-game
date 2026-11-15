@@ -71,9 +71,9 @@ const fl=(x,y,t,c)=>FX.push({k:0,x,y,t,c,l:1});
 const SK=i=>JOBS[P.job].sk[i],need=l=>Math.round(15*Math.pow(l,1.5));
 function setJob(j){P.job=j;P.cast=null;P.pend=null;P.cd=[0,0,0,0,0];const d=D();P.hp=Math.min(P.hp,d.hp);P.mp=Math.min(P.mp,d.mp);save();build()}
 function build(){
-$('jobs').innerHTML=Object.keys(JOBS).map(j=>`<button class="${j==P.job?'on':''}" data-j="${j}">${JOBS[j].n}<br>Lv${P.lv[j]}</button>`).join('')+(P.job=='wiz'?`<button id="el" style="flex:.6">属性<br>${EN[P.el]}</button>`:'');
+$('jobs').innerHTML=Object.keys(JOBS).map(j=>`<button class="${j==P.job?'on':''}" data-j="${j}">${JOBS[j].n}<br>Lv${P.lv[j]}</button>`).join('')+(P.job=='wiz'?`<button id="el" style="flex:.6">属性<br>${EN[P.el]}</button>`:'')+'<button id="wm" style="flex:.6">地図</button>';
 $('jobs').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>setJob(b.dataset.j));
-if($('el'))$('el').onclick=()=>{P.el={fir:'wat',wat:'ear',ear:'fir'}[P.el];build()};
+$('wm').onclick=()=>openMap();if($('el'))$('el').onclick=()=>{P.el={fir:'wat',wat:'ear',ear:'fir'}[P.el];build()};
 const L=P.lv[P.job];
 $('sk').innerHTML=JOBS[P.job].sk.map((s,i)=>{const lk=L<UL[i],el=s.e=='var'?P.el:s.e;return`<button class="sb ${lk?'lk':''}" data-i="${i}"><b>${s.n}</b><span style="font-size:10px;color:${el?EC[el]:'#fff'}">${lk?'Lv'+UL[i]:'MP'+s.mp}</span><span class="cdv"></span></button>`}).join('');
 $('sk').querySelectorAll('.sb').forEach(b=>b.onclick=()=>use(+b.dataset.i))}
@@ -123,7 +123,7 @@ const ren=new THREE.WebGLRenderer({canvas:cv,antialias:true}),scn=new THREE.Scen
 scn.background=new THREE.Color(0x9fb4c8);scn.fog=new THREE.Fog(0x9fb4c8,28,65);
 scn.add(new THREE.HemisphereLight(0xffffff,0x667788,.95));const sun=new THREE.DirectionalLight(0xffffff,.7);sun.position.set(10,20,8);scn.add(sun);
 const LM=c=>new THREE.MeshLambertMaterial({color:c}),flat=(g,c,y)=>{const m=new THREE.Mesh(g,LM(c));m.rotation.x=-Math.PI/2;m.position.y=y;scn.add(m)};
-flat(new THREE.PlaneGeometry(80,80),0xdce6ef,0);flat(new THREE.CircleGeometry(6,32),0xb9a98f,.02);
+const gm=new THREE.Mesh(new THREE.PlaneGeometry(80,80),LM(0xdce6ef));gm.rotation.x=-Math.PI/2;scn.add(gm);const sc3=new THREE.Group();scn.add(sc3);
 const gd=new THREE.GridHelper(80,20,0xb5c4d2,0xc5d2de);gd.position.y=.01;scn.add(gd);
 function rs(){dpr=devicePixelRatio||1;W=innerWidth;H=innerHeight;ren.setPixelRatio(dpr);ren.setSize(W,H,false);ov.width=W*dpr;ov.height=H*dpr;cam.aspect=W/H;cam.updateProjectionMatrix()}rs();addEventListener('resize',rs);
 function human(col,k){const g=new THREE.Group(),bx=(w,h,d,c,x,y,p)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),LM(c));m.position.set(x,y,0);p.add(m)};
@@ -137,9 +137,9 @@ else if(j=='pri'){m=M(new THREE.CylinderGeometry(.04,.04,.9),0xccbbaa);m.positio
 if(m){g.ra.add(m)}}
 let cy=0,cp=.83,cd=16.3,pm=null,T=performance.now()/1000,sw=0,lx=0,ly=0;const fxm=[];
 function mkP(){if(pm)scn.remove(pm);pm=human(new THREE.Color(JOBS[P.job].col).getHex());pm.job=P.job;wpn(pm,P.job);scn.add(pm)}
-function mkE(e){let g;if(e.id=='slime'){g=new THREE.Group();const m=new THREE.Mesh(new THREE.SphereGeometry(.6,16,12),LM(e.d.col));m.scale.y=.75;m.position.y=.45;g.add(m);
+function mkE(e){let g;if(e.id=='slime'||e.id=='crab'){g=new THREE.Group();const m=new THREE.Mesh(new THREE.SphereGeometry(.6,16,12),LM(e.d.col));m.scale.y=.75;m.position.y=.45;g.add(m);
 [-.2,.2].forEach(x=>{const o=new THREE.Mesh(new THREE.SphereGeometry(.07),new THREE.MeshBasicMaterial({color:0}));o.position.set(x,.6,.5);g.add(o)})}
-else g=human(0xe8eef4,1.7);scn.add(g);e.m=g}
+else g=e.id=='goblin'?human(0x6a9a3a,.95):human(0xe8eef4,1.7);scn.add(g);e.m=g}
 const tr=new THREE.Mesh(new THREE.RingGeometry(.8,.95,28),new THREE.MeshBasicMaterial({color:0xff3333,side:2}));tr.rotation.x=-Math.PI/2;tr.position.y=.05;scn.add(tr);
 const ox=exec;exec=function(i){const c=P.cd[i];ox(i);if(P.cd[i]>c)sw=.35};
 const rc=new THREE.Raycaster(),pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),v3=new THREE.Vector3();
@@ -155,7 +155,7 @@ if(P.tg&&(P.cast||sw>0))turn(pm,Math.atan2(P.tg.x-P.x,P.tg.y-P.y));else if(mv)tu
 pose(pm,mv,t,sw,!!P.cast,0);
 E.forEach(e=>{if(!e.m)mkE(e);const m=e.m;m.visible=!e.dead;if(e.dead)return;m.position.set(e.x,0,e.y);
 const chase=e.st==1&&dist(e,P)>1.6,near=e.st==1&&!chase;if(e.st)turn(m,Math.atan2(P.x-e.x,P.y-e.y));
-if(e.id=='slime')m.position.y=(chase||near)?Math.abs(Math.sin(t*5))*.15:0;else pose(m,chase||e.st==2?1:0,t,0,0,near)});
+if(e.id=='slime'||e.id=='crab')m.position.y=(chase||near)?Math.abs(Math.sin(t*5))*.15:0;else pose(m,chase||e.st==2?1:0,t,0,0,near)});
 tr.visible=!!P.tg&&!P.tg.dead;if(tr.visible)tr.position.set(P.tg.x,.05,P.tg.y);
 FX.forEach(f=>{if(f.k&&!f.m){f.m=f.k==1?new THREE.Mesh(new THREE.RingGeometry(f.r*.85,f.r,40),new THREE.MeshBasicMaterial({color:f.c,transparent:true,side:2})):new THREE.Mesh(new THREE.SphereGeometry(.25),new THREE.MeshBasicMaterial({color:f.c}));
 if(f.k==1){f.m.rotation.x=-Math.PI/2;f.m.position.set(f.x,.08,f.y)}scn.add(f.m);fxm.push(f)}
@@ -163,13 +163,13 @@ if(f.m){if(f.k==1){f.m.scale.setScalar(1.2-f.l);f.m.material.opacity=clamp(f.l*2
 for(let i=fxm.length-1;i>=0;i--)if(fxm[i].l<=0){scn.remove(fxm[i].m);fxm.splice(i,1)}
 cam.position.set(P.x+Math.sin(cy)*Math.cos(cp)*cd,Math.sin(cp)*cd,P.y+Math.cos(cy)*Math.cos(cp)*cd);cam.lookAt(P.x,.5,P.y);ren.render(scn,cam);
 ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.textAlign='center';ctx.font='11px sans-serif';
-E.forEach(e=>{if(e.dead)return;const[x,y]=pj(e.x,e.id=='yeti'?3.5:1.4,e.y);ctx.fillStyle='#0009';ctx.fillRect(x-22,y,44,5);ctx.fillStyle='#e44';ctx.fillRect(x-22,y,44*e.hp/e.max,5);
+E.forEach(e=>{if(e.dead)return;const[x,y]=pj(e.x,e.id=='yeti'?3.5:e.id=='goblin'?2.2:1.4,e.y);ctx.fillStyle='#0009';ctx.fillRect(x-22,y,44,5);ctx.fillStyle='#e44';ctx.fillRect(x-22,y,44*e.hp/e.max,5);
 ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;const n='Lv'+e.d.lv+' '+e.d.n;ctx.strokeText(n,x,y-3);ctx.fillText(n,x,y-3)});
 if(P.cast){const[x,y]=pj(P.x,2.3,P.y);ctx.fillStyle='#0008';ctx.fillRect(x-24,y,48,6);ctx.fillStyle='#6cf';ctx.fillRect(x-24,y,48*(1-P.cast.t/P.cast.m),6)}
 ctx.font='bold 15px sans-serif';FX.forEach(f=>{if(f.k)return;const[x,y]=pj(f.x,2+(1-f.l)*1.2,f.y);ctx.globalAlpha=clamp(f.l*2,0,1);ctx.fillStyle=f.c;ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.strokeText(f.t,x,y);ctx.fillText(f.t,x,y);ctx.globalAlpha=1})}
 let hu=0;
 function hud(){const d=D(),L=P.lv[P.job];
-$('st').innerHTML=`${JOBS[P.job].n} Lv${L}　HP ${Math.ceil(P.hp)}/${d.hp}　MP ${Math.floor(P.mp)}/${d.mp}`+
+$('st').innerHTML=`<b>${MAPS[cur].n}</b>　${JOBS[P.job].n} Lv${L}　HP ${Math.ceil(P.hp)}/${d.hp}　MP ${Math.floor(P.mp)}/${d.mp}`+
 `<div class="bar"><i style="width:${P.hp/d.hp*100}%;background:#e44"></i></div><div class="bar"><i style="width:${P.mp/d.mp*100}%;background:#49f"></i></div><div class="bar" style="height:4px"><i style="width:${L>=50?100:P.xp[P.job]/need(L)*100}%;background:#fc3"></i></div>`+
 `<span style="opacity:.7">腕${d.s.STR.toFixed(0)} 知${d.s.INT.toFixed(0)} 体${d.s.VIT.toFixed(0)} 速${d.s.SPD.toFixed(0)} 器${d.s.DEX.toFixed(0)} 防${d.s.DEF.toFixed(0)} 精${d.s.MND.toFixed(0)}</span>`;
 const t=P.tg;$('tg').style.display=t?'block':'none';
@@ -195,7 +195,43 @@ jsE.addEventListener('pointermove',e=>{if(e.pointerId==joy.id)jm(e)});
 const je=e=>{if(e.pointerId!=joy.id)return;joy.on=0;joy.id=null;jk.style.transform='';if(!P.pend)P.tx=null};
 jsE.addEventListener('pointerup',je);jsE.addEventListener('pointercancel',je);
 const ou=upd;upd=function(dt){if(joy.on&&P.hp>0&&Math.hypot(joy.x,joy.y)>.2){const s=Math.sin(cy),c=Math.cos(cy),f=-joy.y;P.tx=P.x+(c*joy.x-s*f)*3;P.ty=P.y+(-s*joy.x-c*f)*3;P.pend=null;if(P.cast){P.cast=null;log('詠唱が中断された')}}ou(dt)};
+
+ED.goblin={n:'ゴブリン',lv:3,s:R([9,4,10,7,7,8,4]),el:'ear',res:{ear:20},aggro:7,xp:20,col:'#7a4',sp:2.6,ai:1.5,rad:.7};
+ED.crab={n:'クラブ',lv:3,s:R([8,4,12,5,5,14,5]),el:'wat',res:{phy:30,wat:30,ear:-20},aggro:5,xp:22,col:'#e75',sp:2,ai:1.8,rad:.7};
+const MAPS={
+'MAP-001':{n:'王都',g:0xcbbf9c,sky:0xa9c4dc,st:[0,0],en:[],gt:[[0,-30,'MAP-101'],[30,0,'MAP-102'],[-30,0,'MAP-103'],[0,30,'MAP-104']],
+zn:[[-10,-8,'ショップ','品揃えは準備中（未実装）'],[10,-8,'鍛冶屋','修理は準備中（未実装）'],[-10,8,'ギルド','転職・クエストは準備中（未実装）'],[10,8,'宿屋','ゆっくり休んだ。HP・MPが全回復']],bld:1},
+'MAP-101':{n:'北の雪原',g:0xdce6ef,sky:0x9fb4c8,st:[0,30],gt:[[0,36,'MAP-001',0,-25]],
+en:[['slime',-9,8],['slime',0,4],['slime',9,9],['slime',-5,-2],['slime',6,-4],['yeti',-12,-18],['yeti',10,-20]]},
+'MAP-102':{n:'東の森',g:0x6f9a62,sky:0x9cc3a0,st:[-30,0],gt:[[-36,0,'MAP-001',25,0]],tree:1,
+en:[['goblin',-8,-6],['goblin',0,8],['goblin',8,-4],['goblin',14,10],['goblin',-2,-14],['slime',20,0],['slime',-14,12]]},
+'MAP-103':{n:'西の草原',g:0x9ccb6a,sky:0xa9d4ee,st:[30,0],gt:[[36,0,'MAP-001',-25,0]],
+en:[['slime',10,-8],['slime',0,6],['slime',-10,-4],['slime',-18,10],['slime',-6,-16],['slime',6,14],['goblin',-24,-2],['goblin',-20,14]]},
+'MAP-104':{n:'南の海岸',g:0xe6d7a3,sky:0x9fd2ea,st:[0,-30],gt:[[0,-36,'MAP-001',0,25]],
+en:[['crab',-8,-5],['crab',6,-8],['crab',0,6],['crab',10,12],['crab',-10,14],['slime',-18,0],['slime',18,2]]}};
+let cur='MAP-001',tl=0;const LB=[];
+const bm=(x,z,w,h,d,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),LM(c));m.position.set(x,h/2,z);sc3.add(m);return m};
+function scenery(m){
+if(m.bld)[[-10,-8,0xbb4444,'ショップ'],[10,-8,0x888899,'鍛冶屋'],[-10,8,0x4466bb,'ギルド'],[10,8,0x44aa66,'宿屋']].forEach(b=>{bm(b[0],b[1],5,3,4,0xe6d9bd);bm(b[0],b[1],5.6,.8,4.6,b[2]).position.y=3.4;LB.push({x:b[0],y:b[1],h:5,t:b[3]})});
+m.gt.forEach(g=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,4,20,1,true),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:.45,side:2}));p.position.set(g[0],2,g[1]);sc3.add(p);LB.push({x:g[0],y:g[1],h:4.6,t:'→'+MAPS[g[2]].n})});
+if(m.tree)for(let i=0;i<60;i++){const a=Math.sin(i*12.9898)*43758.5453,b=Math.sin(i*78.233)*12345.6789,x=(a-Math.floor(a))*76-38,z=(b-Math.floor(b))*76-38;if(Math.hypot(x-m.st[0],z-m.st[1])<8||(Math.abs(z)<2&&x<-30))continue;
+const t=new THREE.Mesh(new THREE.CylinderGeometry(.2,.25,1.2),LM(0x6b4a2a)),c=new THREE.Mesh(new THREE.ConeGeometry(1,2.6,8),LM(0x2f7a3a));t.position.set(x,.6,z);c.position.set(x,2.4,z);sc3.add(t);sc3.add(c)}}
+function goMap(id,sx,sy){const m=MAPS[id];cur=id;E.forEach(e=>{if(e.m)scn.remove(e.m)});E.length=0;m.en&&m.en.forEach(a=>E.push(mk(a[0],a[1],a[2])));
+FX.length=0;fxm.forEach(f=>scn.remove(f.m));fxm.length=0;while(sc3.children.length)sc3.remove(sc3.children[0]);LB.length=0;
+gm.material.color.set(m.g);scn.background.set(m.sky);scn.fog.color.set(m.sky);scenery(m);
+P.x=sx!=null?sx:m.st[0];P.y=sy!=null?sy:m.st[1];lx=P.x;ly=P.y;P.tx=null;P.tg=null;P.cast=null;P.pend=null;P.zone=null;tl=1.2;log('── '+m.n+' ──')}
+function openMap(){let d=$('wmap');if(!d){d=document.createElement('div');d.id='wmap';d.className='pn';d.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:240px;z-index:9;display:none';document.body.appendChild(d)}
+if(d.style.display=='block'){d.style.display='none';return}
+d.innerHTML='<b>ワールドマップ</b>'+Object.keys(MAPS).map(k=>'<button data-m="'+k+'" style="width:100%;margin-top:4px;padding:10px">'+MAPS[k].n+(k==cur?'（現在地）':'')+'</button>').join('');
+d.style.display='block';d.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{d.style.display='none';goMap(b.dataset.m)})}
+const ou2=upd;upd=function(dt){ou2(dt);tl=Math.max(0,tl-dt);const m=MAPS[cur];
+if(!tl)for(const g of m.gt)if(Math.hypot(P.x-g[0],P.y-g[1])<1.8){goMap(g[2],g[3],g[4]);return}
+if(m.zn){let z=null;for(const a of m.zn)if(Math.hypot(P.x-a[0],P.y-a[1])<4.5)z=a;
+if(z&&P.zone!=z[2]){P.zone=z[2];log(z[2]+'：'+z[3]);if(z[2]=='宿屋'){const d=D();P.hp=d.hp;P.mp=d.mp}}else if(!z)P.zone=null}};
+const od=die;die=function(){od();goMap('MAP-001')};
+const odr=draw;draw=function(){odr();ctx.font='bold 12px sans-serif';ctx.textAlign='center';LB.forEach(b=>{const[x,y]=pj(b.x,b.h,b.y);ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.strokeText(b.t,x,y);ctx.fillText(b.t,x,y)})};
+goMap('MAP-001');
 let lt=performance.now();
 function loop(n){const dt=Math.min(.05,(n-lt)/1000);lt=n;upd(dt);draw();if((hu+=dt)>.08){hu=0;hud()}requestAnimationFrame(loop)}
-{const d=D();P.hp=d.hp;P.mp=d.mp}build();log('左スティックで移動／ドラッグで視点／ピンチでズーム／敵タップで選択');log('北（上）の雪原にスライムとイエティがいる');requestAnimationFrame(loop);
+{const d=D();P.hp=d.hp;P.mp=d.mp}build();log('左スティックで移動／ドラッグで視点／ピンチでズーム／光の柱で地域移動／地図ボタンで長距離移動');log('王都から東西南北の光の柱で各地域へ行ける');requestAnimationFrame(loop);
 </script></body></html>
