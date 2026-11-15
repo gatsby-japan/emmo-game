@@ -11,7 +11,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%}#o{pointer-events:none}#js{
 .pn{background:var(--pn);border:1px solid var(--bd);border-radius:8px;padding:5px 7px;margin-bottom:4px;pointer-events:auto}
 #jobs{display:flex;gap:4px}
 button{pointer-events:auto;font:inherit;color:var(--fg);background:#232c3a;border:1px solid var(--bd);border-radius:7px;padding:5px 3px;flex:1;position:relative;overflow:hidden}
-button.on{background:#2f5fa8;border-color:#7fb0ff}
+button:disabled{opacity:.4}button.on{background:#2f5fa8;border-color:#7fb0ff}
 .bar{height:7px;background:#0006;border-radius:4px;margin:2px 0;overflow:hidden}
 .bar i{display:block;height:100%}
 #sk{display:flex;gap:4px}
@@ -29,7 +29,7 @@ button.on{background:#2f5fa8;border-color:#7fb0ff}
 const K=['STR','INT','VIT','SPD','DEX','DEF','MND'],clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const R=a=>Object.fromEntries(K.map((k,i)=>[k,a[i]]));
 const EC={fir:'#ff8a1e',wat:'#3fa9ff',ear:'#b08a4a',lig:'#ffe94d',dar:'#a35cff',non:'#ffffff'},EN={fir:'火',wat:'水',ear:'土',lig:'光',dar:'闇',non:'無'};
-const UL=[1,3,6,10,15];
+const UL=[1,3,6,10,15],ul=i=>JOBS[P.job].sk[i].ul||UL[i];
 const JOBS={
 fig:{n:'ファイター',col:'#d44',m:{STR:1.2,VIT:1.15,DEF:1.1,INT:.7,MND:.85},g:R([2.2,.6,2,1.2,1.3,1.8,.9]),sk:[
 {n:'剣撃1',t:'PHY',p:1.2,mp:0,ct:.5,r:2.4},{n:'剣撃2',t:'PHY',p:1.7,mp:4,ct:1.2,r:2.4},
@@ -44,16 +44,16 @@ wiz:{n:'魔法使い',col:'#59f',m:{INT:1.25,MND:1.1,STR:.6,VIT:.85},g:R([.7,2.6
 {n:'魔術3',t:'MAG',p:2,mp:18,ct:3.2,r:12,cast:.5,e:'var',aoe:3.3},{n:'魔術4',t:'MAG',p:2.6,mp:24,ct:4.5,r:12,cast:.8,e:'var'},
 {n:'魔術5',t:'MAG',p:3.3,mp:36,ct:7,r:12,cast:.5,e:'var',aoe:3.3}]},
 pri:{n:'僧侶',col:'#4c8',m:{MND:1.25,INT:1.05,STR:.8,VIT:.95},g:R([1.1,1.7,1.3,1.1,1.1,1.3,2.4]),sk:[
-{n:'聖術1',t:'MAG',p:1.2,mp:7,ct:1.2,r:12,cast:.6,e:'lig'},{n:'聖術2',t:'HEAL',p:1.7,mp:12,ct:2.5,cast:1,e:'lig'},
+{n:'聖術1',t:'MAG',p:1.2,mp:7,ct:1.2,r:12,cast:.6,e:'lig'},{n:'ヒール',t:'HEAL',p:1.7,mp:12,ct:2.5,cast:1,e:'lig',ul:1},
 {n:'聖術3',t:'MAG',p:1.9,mp:17,ct:3.2,r:12,cast:.6,e:'lig',aoe:3.3},{n:'聖術4',t:'BUF',mp:20,ct:10,e:'lig'},
 {n:'聖術5',t:'HEAL',p:2.2,mp:34,ct:8,cast:1,e:'lig'}]}};
-const ED={slime:{n:'スライム',lv:1,s:R([6,4,6,6,6,4,4]),el:'wat',res:{phy:-10,wat:50},aggro:6,xp:12,col:'#4bd',sp:2.4,ai:1.6,rad:.6},
-yeti:{n:'イエティ',lv:5,s:R([14,4,20,5,8,15,6]),el:'ear',res:{phy:20,ear:30,fir:-20},aggro:8,xp:45,col:'#cdd6dd',sp:2.2,ai:2,rad:.95}};
-const P={x:0,y:0,hp:1,mp:1,job:'fig',lv:{fig:1,mnk:1,wiz:1,pri:1},xp:{fig:0,mnk:0,wiz:0,pri:0},cd:[0,0,0,0,0],cast:null,pend:null,tx:null,ty:null,buff:0,hurt:0,el:'fir',tg:null};
-try{const o=JSON.parse(localStorage.getItem('emmo')||'null');if(o){Object.assign(P.lv,o.lv);Object.assign(P.xp,o.xp);P.job=o.job||'fig'}}catch(e){}
-const save=()=>{try{localStorage.setItem('emmo',JSON.stringify({lv:P.lv,xp:P.xp,job:P.job}))}catch(e){}};
+const ED={slime:{n:'スライム',lv:1,s:R([6,4,6,6,6,4,4]),el:'wat',res:{phy:-10,wat:50},aggro:6,xp:12,col:'#4bd',sp:2.4,ai:1.6,rad:.6,gold:8},
+yeti:{n:'イエティ',lv:5,s:R([14,4,20,5,8,15,6]),el:'ear',res:{phy:20,ear:30,fir:-20},aggro:8,xp:45,col:'#cdd6dd',sp:2.2,ai:2,rad:.95,gold:40}};
+const P={gold:0,eq:{w:{fig:0,mnk:0,wiz:0,pri:0},a:0},dw:{fig:100,mnk:100,wiz:100,pri:100},da:100,x:0,y:0,hp:1,mp:1,job:'fig',lv:{fig:1,mnk:1,wiz:1,pri:1},xp:{fig:0,mnk:0,wiz:0,pri:0},cd:[0,0,0,0,0],cast:null,pend:null,tx:null,ty:null,buff:0,hurt:0,el:'fir',tg:null};
+try{const o=JSON.parse(localStorage.getItem('emmo')||'null');if(o){Object.assign(P.lv,o.lv);Object.assign(P.xp,o.xp);if(o.eq){P.eq=o.eq;P.dw=o.dw;P.da=o.da;P.gold=o.gold||0}P.job=o.job||'fig'}}catch(e){}
+const save=()=>{try{localStorage.setItem('emmo',JSON.stringify({lv:P.lv,xp:P.xp,job:P.job,eq:P.eq,dw:P.dw,da:P.da,gold:P.gold}))}catch(e){}};
 function S(){const j=JOBS[P.job],L=P.lv[P.job],s={};K.forEach(k=>s[k]=10*(j.m[k]||1)+j.g[k]*(L-1));return s}
-function D(){const s=S();return{s,hp:Math.round(50+s.VIT*10),mp:Math.round(20+s.MND*6),pa:s.STR*2+10,ma:s.INT*2+10,pd:s.DEF+s.VIT*.5+5,md:s.DEF*.5+s.MND+3,dex:s.DEX}}
+function D(){const s=S();return{s,hp:Math.round(50+s.VIT*10),mp:Math.round(20+s.MND*6),pa:s.STR*2+wA(),ma:s.INT*2+wA(),pd:s.DEF+s.VIT*.5+aA(0),md:s.DEF*.5+s.MND+aA(1),dex:s.DEX}}
 const PT=()=>{const d=D(),b=P.buff>0?10:0;return{pd:d.pd,md:d.md,dex:d.dex,res:k=>b}};
 const ET=e=>{const s=e.d.s;return{pd:s.DEF+s.VIT*.5,md:s.DEF*.5+s.MND,dex:s.DEX,res:k=>e.d.res[k]||0}};
 const EA=e=>{const s=e.d.s;return{pa:s.STR*2,ma:s.INT*2,dex:s.DEX}};
@@ -75,9 +75,9 @@ $('jobs').innerHTML=Object.keys(JOBS).map(j=>`<button class="${j==P.job?'on':''}
 $('jobs').querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>setJob(b.dataset.j));
 $('wm').onclick=()=>openMap();if($('el'))$('el').onclick=()=>{P.el={fir:'wat',wat:'ear',ear:'fir'}[P.el];build()};
 const L=P.lv[P.job];
-$('sk').innerHTML=JOBS[P.job].sk.map((s,i)=>{const lk=L<UL[i],el=s.e=='var'?P.el:s.e;return`<button class="sb ${lk?'lk':''}" data-i="${i}"><b>${s.n}</b><span style="font-size:10px;color:${el?EC[el]:'#fff'}">${lk?'Lv'+UL[i]:'MP'+s.mp}</span><span class="cdv"></span></button>`}).join('');
+$('sk').innerHTML=JOBS[P.job].sk.map((s,i)=>{const lk=L<ul(i),el=s.e=='var'?P.el:s.e;return`<button class="sb ${lk?'lk':''}" data-i="${i}"><b>${s.n}</b><span style="font-size:10px;color:${el?EC[el]:'#fff'}">${lk?'Lv'+ul(i):'MP'+s.mp}</span><span class="cdv"></span></button>`}).join('');
 $('sk').querySelectorAll('.sb').forEach(b=>b.onclick=()=>use(+b.dataset.i))}
-function use(i){const sk=SK(i);if(P.lv[P.job]<UL[i])return log('未習得（Lv'+UL[i]+'で習得）');
+function use(i){const sk=SK(i);if(P.lv[P.job]<ul(i))return log('未習得（Lv'+ul(i)+'で習得）');
 if(P.cd[i]>0||P.hp<=0)return;if(P.mp<sk.mp)return log('MPが足りない');
 const free=sk.self||sk.t=='HEAL'||sk.t=='BUF';
 if(!free&&(!P.tg||P.tg.dead||dist(P,P.tg)>40)){P.tg=null;let b=null,bd=Math.max(sk.r,8);E.forEach(e=>{const d=dist(P,e);if(!e.dead&&d<bd){bd=d;b=e}});if(!b)return log('射程内に敵がいない');P.tg=b}
@@ -86,12 +86,12 @@ function begin(i){const sk=SK(i);P.pend=null;if(P.mp<sk.mp)return log('MPが足�
 function exec(i){const sk=SK(i);if(P.mp<sk.mp)return;P.mp-=sk.mp;P.cd[i]=sk.ct;const el=sk.e=='var'?P.el:(sk.e||'non'),d=D(),col=EC[el];
 if(sk.t=='HEAL'){const a=Math.round(d.s.MND*3*sk.p);P.hp=Math.min(d.hp,P.hp+a);fl(P.x,P.y,'+'+a,'#6f6');FX.push({k:1,x:P.x,y:P.y,r:2,c:col,l:.5});return}
 if(sk.t=='BUF'){P.buff=20;log('全耐性+10%（20秒）');FX.push({k:1,x:P.x,y:P.y,r:2,c:col,l:.6});return}
-const c=sk.self?P:P.tg;if(!c||c.dead)return;
+const c=sk.self?P:P.tg;if(!c||c.dead)return;P.dw[P.job]=Math.max(0,P.dw[P.job]-.5);
 const ts=sk.aoe?E.filter(e=>!e.dead&&dist(e,c)<=sk.aoe):[c];
 if(sk.aoe)FX.push({k:1,x:c.x,y:c.y,r:sk.aoe,c:col,l:.5});else FX.push({k:2,x:P.x,y:P.y,x2:c.x,y2:c.y,c:col,l:.18});
 ts.forEach(e=>{for(let h=0;h<(sk.h||1);h++){const r=hit({pa:d.pa,ma:d.ma,dex:d.dex},ET(e),sk,el);e.hp-=r.d;if(e.st!=2)e.st=1;
 fl(e.x+(Math.random()-.5),e.y-1,(r.cr?'!':'')+r.d,r.cr?'#ff0':'#fff');if(e.hp<=0){kill(e);break}}})}
-function kill(e){e.dead=1;e.rt=10;e.hp=0;if(P.tg==e)P.tg=null;const j=P.job;P.xp[j]+=e.d.xp;log(e.d.n+'を倒した（+'+e.d.xp+'XP）');
+function kill(e){e.dead=1;e.rt=10;e.hp=0;if(P.tg==e)P.tg=null;const j=P.job;P.xp[j]+=e.d.xp;const gd=Math.round((e.d.gold||0)*(.8+Math.random()*.4));P.gold+=gd;log(e.d.n+'を倒した（+'+e.d.xp+'XP / '+gd+'G）');
 while(P.lv[j]<50&&P.xp[j]>=need(P.lv[j])){P.xp[j]-=need(P.lv[j]);P.lv[j]++;log('★'+JOBS[j].n+'がLv'+P.lv[j]+'に上がった');const d=D();P.hp=d.hp;P.mp=d.mp;build()}save()}
 function die(){log('倒れた…王都へ戻った');const d=D();P.x=P.y=0;P.hp=d.hp;P.mp=d.mp;P.tx=null;P.cast=null;P.pend=null;P.tg=null;E.forEach(e=>{if(!e.dead)e.st=2})}
 function upd(dt){const d=D();
@@ -114,7 +114,7 @@ else if(e.st==1){if(P.hp<=0||Math.hypot(e.x-e.hx,e.y-e.hy)>25)e.st=2;
 else if(dp>1.6)mv(P.x,P.y);
 else{e.at-=dt;if(e.at<=0){e.at=e.d.ai;
 if(Math.random()*100<Math.min(30,d.s.SPD*.15)){fl(P.x,P.y-1,'MISS','#9cf')}
-else{const r=hit(EA(e),PT(),{t:'PHY',p:1},'non');P.hp-=r.d;P.hurt=5;fl(P.x,P.y-1,(r.cr?'!':'')+r.d,'#f66');if(P.hp<=0)die()}}}}
+else{const r=hit(EA(e),PT(),{t:'PHY',p:1},'non');P.hp-=r.d;P.hurt=5;P.da=Math.max(0,P.da-.5);fl(P.x,P.y-1,(r.cr?'!':'')+r.d,'#f66');if(P.hp<=0)die()}}}}
 else{mv(e.hx,e.hy);e.hp=Math.min(e.max,e.hp+e.max*.2*dt);if(Math.hypot(e.x-e.hx,e.y-e.hy)<.3){e.hp=e.max;e.st=0}}
 if(e.st==1&&e.at<=0&&dp>1.6)e.at=.5});
 FX.forEach(f=>f.l-=dt);for(let i=FX.length-1;i>=0;i--)if(FX[i].l<=0)FX.splice(i,1)}
@@ -139,7 +139,7 @@ let cy=0,cp=.83,cd=16.3,pm=null,T=performance.now()/1000,sw=0,lx=0,ly=0;const fx
 function mkP(){if(pm)scn.remove(pm);pm=human(new THREE.Color(JOBS[P.job].col).getHex());pm.job=P.job;wpn(pm,P.job);scn.add(pm)}
 function mkE(e){let g;if(e.id=='slime'||e.id=='crab'){g=new THREE.Group();const m=new THREE.Mesh(new THREE.SphereGeometry(.6,16,12),LM(e.d.col));m.scale.y=.75;m.position.y=.45;g.add(m);
 [-.2,.2].forEach(x=>{const o=new THREE.Mesh(new THREE.SphereGeometry(.07),new THREE.MeshBasicMaterial({color:0}));o.position.set(x,.6,.5);g.add(o)})}
-else g=e.id=='goblin'?human(0x6a9a3a,.95):human(0xe8eef4,1.7);scn.add(g);e.m=g}
+else g=e.id=='goblin'?human(0x6a9a3a,.95):e.id=='ogre'?human(0x9a5a3a,2.1):human(0xe8eef4,1.7);if(e.d.elite)g.scale.multiplyScalar(1.35);scn.add(g);e.m=g}
 const tr=new THREE.Mesh(new THREE.RingGeometry(.8,.95,28),new THREE.MeshBasicMaterial({color:0xff3333,side:2}));tr.rotation.x=-Math.PI/2;tr.position.y=.05;scn.add(tr);
 const ox=exec;exec=function(i){const c=P.cd[i];ox(i);if(P.cd[i]>c)sw=.35};
 const rc=new THREE.Raycaster(),pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),v3=new THREE.Vector3();
@@ -163,15 +163,15 @@ if(f.m){if(f.k==1){f.m.scale.setScalar(1.2-f.l);f.m.material.opacity=clamp(f.l*2
 for(let i=fxm.length-1;i>=0;i--)if(fxm[i].l<=0){scn.remove(fxm[i].m);fxm.splice(i,1)}
 cam.position.set(P.x+Math.sin(cy)*Math.cos(cp)*cd,Math.sin(cp)*cd,P.y+Math.cos(cy)*Math.cos(cp)*cd);cam.lookAt(P.x,.5,P.y);ren.render(scn,cam);
 ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.textAlign='center';ctx.font='11px sans-serif';
-E.forEach(e=>{if(e.dead)return;const[x,y]=pj(e.x,e.id=='yeti'?3.5:e.id=='goblin'?2.2:1.4,e.y);ctx.fillStyle='#0009';ctx.fillRect(x-22,y,44,5);ctx.fillStyle='#e44';ctx.fillRect(x-22,y,44*e.hp/e.max,5);
-ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;const n='Lv'+e.d.lv+' '+e.d.n;ctx.strokeText(n,x,y-3);ctx.fillText(n,x,y-3)});
+E.forEach(e=>{if(e.dead)return;const[x,y]=pj(e.x,e.id=='yeti'?3.5:e.id=='ogre'?4.2:e.id=='goblin'?2.2:1.4,e.y);ctx.fillStyle='#0009';ctx.fillRect(x-22,y,44,5);ctx.fillStyle='#e44';ctx.fillRect(x-22,y,44*e.hp/e.max,5);
+ctx.fillStyle=e.d.elite?'#ff6666':'#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;const n='Lv'+e.d.lv+' '+e.d.n;ctx.strokeText(n,x,y-3);ctx.fillText(n,x,y-3)});
 if(P.cast){const[x,y]=pj(P.x,2.3,P.y);ctx.fillStyle='#0008';ctx.fillRect(x-24,y,48,6);ctx.fillStyle='#6cf';ctx.fillRect(x-24,y,48*(1-P.cast.t/P.cast.m),6)}
 ctx.font='bold 15px sans-serif';FX.forEach(f=>{if(f.k)return;const[x,y]=pj(f.x,2+(1-f.l)*1.2,f.y);ctx.globalAlpha=clamp(f.l*2,0,1);ctx.fillStyle=f.c;ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.strokeText(f.t,x,y);ctx.fillText(f.t,x,y);ctx.globalAlpha=1})}
 let hu=0;
 function hud(){const d=D(),L=P.lv[P.job];
-$('st').innerHTML=`<b>${MAPS[cur].n}</b>　${JOBS[P.job].n} Lv${L}　HP ${Math.ceil(P.hp)}/${d.hp}　MP ${Math.floor(P.mp)}/${d.mp}`+
+$('st').innerHTML=`<b>${MAPS[cur].n}</b>　${P.gold}G　${JOBS[P.job].n} Lv${L}　HP ${Math.ceil(P.hp)}/${d.hp}　MP ${Math.floor(P.mp)}/${d.mp}`+
 `<div class="bar"><i style="width:${P.hp/d.hp*100}%;background:#e44"></i></div><div class="bar"><i style="width:${P.mp/d.mp*100}%;background:#49f"></i></div><div class="bar" style="height:4px"><i style="width:${L>=50?100:P.xp[P.job]/need(L)*100}%;background:#fc3"></i></div>`+
-`<span style="opacity:.7">腕${d.s.STR.toFixed(0)} 知${d.s.INT.toFixed(0)} 体${d.s.VIT.toFixed(0)} 速${d.s.SPD.toFixed(0)} 器${d.s.DEX.toFixed(0)} 防${d.s.DEF.toFixed(0)} 精${d.s.MND.toFixed(0)}</span>`;
+`<span style="opacity:.7">腕${d.s.STR.toFixed(0)} 知${d.s.INT.toFixed(0)} 体${d.s.VIT.toFixed(0)} 速${d.s.SPD.toFixed(0)} 器${d.s.DEX.toFixed(0)} 防${d.s.DEF.toFixed(0)} 精${d.s.MND.toFixed(0)}　耐久 武${Math.ceil(P.dw[P.job])}/防${Math.ceil(P.da)}</span>`;
 const t=P.tg;$('tg').style.display=t?'block':'none';
 if(t)$('tg').innerHTML=`${t.d.n} Lv${t.d.lv} <span style="color:${EC[t.d.el]}">●${EN[t.d.el]}</span> 耐性:`+Object.entries(t.d.res).map(([k,v])=>(k=='phy'?'物':EN[k])+(v>0?'+':'')+v).join(' ')+`<div class="bar"><i style="width:${t.hp/t.max*100}%;background:#e44"></i></div>`;
 document.querySelectorAll('.cdv').forEach((c,i)=>{const s=SK(i);c.style.height=P.cd[i]>0?P.cd[i]/s.ct*100+'%':'0'})}
@@ -196,15 +196,16 @@ const je=e=>{if(e.pointerId!=joy.id)return;joy.on=0;joy.id=null;jk.style.transfo
 jsE.addEventListener('pointerup',je);jsE.addEventListener('pointercancel',je);
 const ou=upd;upd=function(dt){if(joy.on&&P.hp>0&&Math.hypot(joy.x,joy.y)>.2){const s=Math.sin(cy),c=Math.cos(cy),f=-joy.y;P.tx=P.x+(c*joy.x-s*f)*3;P.ty=P.y+(-s*joy.x-c*f)*3;P.pend=null;if(P.cast){P.cast=null;log('詠唱が中断された')}}ou(dt)};
 
-ED.goblin={n:'ゴブリン',lv:3,s:R([9,4,10,7,7,8,4]),el:'ear',res:{ear:20},aggro:7,xp:20,col:'#7a4',sp:2.6,ai:1.5,rad:.7};
-ED.crab={n:'クラブ',lv:3,s:R([8,4,12,5,5,14,5]),el:'wat',res:{phy:30,wat:30,ear:-20},aggro:5,xp:22,col:'#e75',sp:2,ai:1.8,rad:.7};
+ED.goblin={n:'ゴブリン',lv:3,s:R([9,4,10,7,7,8,4]),el:'ear',res:{ear:20},aggro:7,xp:20,col:'#7a4',sp:2.6,ai:1.5,rad:.7,gold:15};
+ED.crab={n:'クラブ',lv:3,s:R([8,4,12,5,5,14,5]),el:'wat',res:{phy:30,wat:30,ear:-20},aggro:5,xp:22,col:'#e75',sp:2,ai:1.8,rad:.7,gold:18};
+ED.ogre={n:'オーガ',lv:8,s:R([22,4,30,6,10,22,8]),el:'ear',res:{phy:30,fir:-20},aggro:9,xp:90,col:'#9a5a3a',sp:2.4,ai:2.2,rad:1.1,gold:70};
 const MAPS={
 'MAP-001':{n:'王都',g:0xcbbf9c,sky:0xa9c4dc,st:[0,0],en:[],gt:[[0,-30,'MAP-101'],[30,0,'MAP-102'],[-30,0,'MAP-103'],[0,30,'MAP-104']],
 zn:[[-10,-8,'ショップ','品揃えは準備中（未実装）'],[10,-8,'鍛冶屋','修理は準備中（未実装）'],[-10,8,'ギルド','転職・クエストは準備中（未実装）'],[10,8,'宿屋','ゆっくり休んだ。HP・MPが全回復']],bld:1},
 'MAP-101':{n:'北の雪原',g:0xdce6ef,sky:0x9fb4c8,st:[0,30],gt:[[0,36,'MAP-001',0,-25]],
-en:[['slime',-9,8],['slime',0,4],['slime',9,9],['slime',-5,-2],['slime',6,-4],['yeti',-12,-18],['yeti',10,-20]]},
+en:[['slime',-9,8],['slime',0,4],['slime',9,9],['slime',-5,-2],['slime',6,-4],['yeti',-12,-18],['yeti',10,-20],['ogre',-22,-26]]},
 'MAP-102':{n:'東の森',g:0x6f9a62,sky:0x9cc3a0,st:[-30,0],gt:[[-36,0,'MAP-001',25,0]],tree:1,
-en:[['goblin',-8,-6],['goblin',0,8],['goblin',8,-4],['goblin',14,10],['goblin',-2,-14],['slime',20,0],['slime',-14,12]]},
+en:[['goblin',-8,-6],['goblin',0,8],['goblin',8,-4],['goblin',14,10],['goblin',-2,-14],['slime',20,0],['slime',-14,12],['ogre',20,-16]]},
 'MAP-103':{n:'西の草原',g:0x9ccb6a,sky:0xa9d4ee,st:[30,0],gt:[[36,0,'MAP-001',-25,0]],
 en:[['slime',10,-8],['slime',0,6],['slime',-10,-4],['slime',-18,10],['slime',-6,-16],['slime',6,14],['goblin',-24,-2],['goblin',-20,14]]},
 'MAP-104':{n:'南の海岸',g:0xe6d7a3,sky:0x9fd2ea,st:[0,-30],gt:[[0,-36,'MAP-001',0,25]],
@@ -216,20 +217,34 @@ if(m.bld)[[-10,-8,0xbb4444,'ショップ'],[10,-8,0x888899,'鍛冶屋'],[-10,8,0
 m.gt.forEach(g=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,4,20,1,true),new THREE.MeshBasicMaterial({color:0x66ccff,transparent:true,opacity:.45,side:2}));p.position.set(g[0],2,g[1]);sc3.add(p);LB.push({x:g[0],y:g[1],h:4.6,t:'→'+MAPS[g[2]].n})});
 if(m.tree)for(let i=0;i<60;i++){const a=Math.sin(i*12.9898)*43758.5453,b=Math.sin(i*78.233)*12345.6789,x=(a-Math.floor(a))*76-38,z=(b-Math.floor(b))*76-38;if(Math.hypot(x-m.st[0],z-m.st[1])<8||(Math.abs(z)<2&&x<-30))continue;
 const t=new THREE.Mesh(new THREE.CylinderGeometry(.2,.25,1.2),LM(0x6b4a2a)),c=new THREE.Mesh(new THREE.ConeGeometry(1,2.6,8),LM(0x2f7a3a));t.position.set(x,.6,z);c.position.set(x,2.4,z);sc3.add(t);sc3.add(c)}}
-function goMap(id,sx,sy){const m=MAPS[id];cur=id;E.forEach(e=>{if(e.m)scn.remove(e.m)});E.length=0;m.en&&m.en.forEach(a=>E.push(mk(a[0],a[1],a[2])));
+function goMap(id,sx,sy){const m=MAPS[id];cur=id;E.forEach(e=>{if(e.m)scn.remove(e.m)});E.length=0;m.en&&m.en.forEach(a=>E.push(mk(a[0],a[1],a[2])));E.forEach(roll);
 FX.length=0;fxm.forEach(f=>scn.remove(f.m));fxm.length=0;while(sc3.children.length)sc3.remove(sc3.children[0]);LB.length=0;
 gm.material.color.set(m.g);scn.background.set(m.sky);scn.fog.color.set(m.sky);scenery(m);
-P.x=sx!=null?sx:m.st[0];P.y=sy!=null?sy:m.st[1];lx=P.x;ly=P.y;P.tx=null;P.tg=null;P.cast=null;P.pend=null;P.zone=null;tl=1.2;log('── '+m.n+' ──')}
+P.x=sx!=null?sx:m.st[0];P.y=sy!=null?sy:m.st[1];lx=P.x;ly=P.y;P.tx=null;P.tg=null;P.cast=null;P.pend=null;P.zone=null;mp('');tl=1.2;log('── '+m.n+' ──')}
 function openMap(){let d=$('wmap');if(!d){d=document.createElement('div');d.id='wmap';d.className='pn';d.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:240px;z-index:9;display:none';document.body.appendChild(d)}
 if(d.style.display=='block'){d.style.display='none';return}
 d.innerHTML='<b>ワールドマップ</b>'+Object.keys(MAPS).map(k=>'<button data-m="'+k+'" style="width:100%;margin-top:4px;padding:10px">'+MAPS[k].n+(k==cur?'（現在地）':'')+'</button>').join('');
 d.style.display='block';d.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{d.style.display='none';goMap(b.dataset.m)})}
-const ou2=upd;upd=function(dt){ou2(dt);tl=Math.max(0,tl-dt);const m=MAPS[cur];
+const ou2=upd;upd=function(dt){ou2(dt);E.forEach(e=>{if(e.wd&&!e.dead)roll(e);e.wd=e.dead});tl=Math.max(0,tl-dt);const m=MAPS[cur];
 if(!tl)for(const g of m.gt)if(Math.hypot(P.x-g[0],P.y-g[1])<1.8){goMap(g[2],g[3],g[4]);return}
 if(m.zn){let z=null;for(const a of m.zn)if(Math.hypot(P.x-a[0],P.y-a[1])<4.5)z=a;
-if(z&&P.zone!=z[2]){P.zone=z[2];log(z[2]+'：'+z[3]);if(z[2]=='宿屋'){const d=D();P.hp=d.hp;P.mp=d.mp}}else if(!z)P.zone=null}};
+if(z&&P.zone!=z[2]){P.zone=z[2];log(z[2]+'：'+z[3]);if(z[2]=='宿屋'){const d=D();P.hp=d.hp;P.mp=d.mp}if(z[2]=='ショップ')shop();if(z[2]=='鍛冶屋')smith()}else if(!z&&P.zone){P.zone=null;mp('')}}};
 const od=die;die=function(){od();goMap('MAP-001')};
 const odr=draw;draw=function(){odr();ctx.font='bold 12px sans-serif';ctx.textAlign='center';LB.forEach(b=>{const[x,y]=pj(b.x,b.h,b.y);ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.strokeText(b.t,x,y);ctx.fillText(b.t,x,y)})};
+
+const WT=[10,22,38,60],AT=[[5,3],[12,8],[22,15],[36,26]],WP=[0,150,500,1500],TN=['初心者の','鉄の','鋼の','魔銀の'],WN={fig:'剣',mnk:'拳',wiz:'杖',pri:'メイス'},maxD=t=>100+50*t;
+function wA(){return P.dw[P.job]>0?WT[P.eq.w[P.job]]:0}
+function aA(i){return P.da>0?AT[P.eq.a][i]:0}
+function roll(e){const b=ED[e.id],x=Math.random()<.15;e.d=x?Object.assign({},b,{n:'強敵 '+b.n,lv:b.lv+3,s:R(K.map(k=>Math.round(b.s[k]*1.6))),xp:b.xp*4,gold:b.gold*3,elite:1}):b;e.max=e.hp=50+e.d.s.VIT*10;if(e.m){scn.remove(e.m);e.m=null}}
+function mp(h,cb){let d=$('mp');if(!d){d=document.createElement('div');d.id='mp';d.className='pn';d.style.cssText='position:fixed;left:50%;top:150px;transform:translateX(-50%);width:270px;z-index:8;display:none';document.body.appendChild(d)}
+d.innerHTML=h;d.style.display=h?'block':'none';d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>cb(b.dataset.a))}
+const bt=(a,t,off)=>'<button data-a="'+a+'" style="width:100%;margin-top:3px;padding:7px" '+(off?'disabled':'')+'>'+t+'</button>';
+function shop(){const j=P.job;let h='<b>ショップ</b>　'+P.gold+'G';
+[['w',1],['w',2],['w',3],['a',1],['a',2],['a',3]].forEach(([k,t])=>{const cur=k=='w'?P.eq.w[j]:P.eq.a,nm=k=='w'?TN[t]+WN[j]+' 攻+'+WT[t]:TN[t]+'鎧 防'+AT[t][0]+'/'+AT[t][1];h+=bt(k+t,nm+'　'+(t<=cur?'所持':WP[t]+'G'),t<=cur||P.gold<WP[t])});
+mp(h+bt('x','閉じる'),a=>{if(a=='x')return mp('');const k=a[0],t=+a[1];if(P.gold<WP[t])return;P.gold-=WP[t];if(k=='w'){P.eq.w[j]=t;P.dw[j]=maxD(t)}else{P.eq.a=t;P.da=maxD(t)}save();log('購入した：'+(k=='w'?TN[t]+WN[j]:TN[t]+'鎧'));shop()})}
+function smith(){const j=P.job,tw=P.eq.w[j],ta=P.eq.a,cw=Math.ceil((maxD(tw)-P.dw[j])*(1+tw)*.3),ca=Math.ceil((maxD(ta)-P.da)*(1+ta)*.3);
+mp('<b>鍛冶屋</b>　'+P.gold+'G<br>武器 '+Math.ceil(P.dw[j])+'/'+maxD(tw)+'　防具 '+Math.ceil(P.da)+'/'+maxD(ta)+bt('w','武器を修理　'+cw+'G',!cw||P.gold<cw)+bt('a','防具を修理　'+ca+'G',!ca||P.gold<ca)+bt('x','閉じる'),a=>{
+if(a=='x')return mp('');if(a=='w'&&P.gold>=cw){P.gold-=cw;P.dw[j]=maxD(tw)}if(a=='a'&&P.gold>=ca){P.gold-=ca;P.da=maxD(ta)}save();log('修理した');smith()})}
 goMap('MAP-001');
 let lt=performance.now();
 function loop(n){const dt=Math.min(.05,(n-lt)/1000);lt=n;upd(dt);draw();if((hu+=dt)>.08){hu=0;hud()}requestAnimationFrame(loop)}
