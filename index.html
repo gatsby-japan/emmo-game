@@ -49,9 +49,9 @@ pri:{n:'僧侶',col:'#4c8',m:{MND:1.25,INT:1.05,STR:.8,VIT:.95},g:R([1.1,1.7,1.3
 {n:'聖術5',t:'HEAL',p:2.2,mp:34,ct:8,cast:1,e:'lig'}]}};
 const ED={slime:{n:'スライム',lv:1,s:R([6,4,6,6,6,4,4]),el:'wat',res:{phy:-10,wat:50},aggro:6,xp:12,col:'#4bd',sp:2.4,ai:1.6,rad:.6,gold:8},
 yeti:{n:'イエティ',lv:5,s:R([14,4,20,5,8,15,6]),el:'ear',res:{phy:20,ear:30,fir:-20},aggro:8,xp:45,col:'#cdd6dd',sp:2.2,ai:2,rad:.95,gold:40}};
-const P={gold:0,eq:{w:{fig:0,mnk:0,wiz:0,pri:0},a:0},dw:{fig:100,mnk:100,wiz:100,pri:100},da:100,x:0,y:0,hp:1,mp:1,job:'fig',lv:{fig:1,mnk:1,wiz:1,pri:1},xp:{fig:0,mnk:0,wiz:0,pri:0},cd:[0,0,0,0,0],cast:null,pend:null,tx:null,ty:null,buff:0,hurt:0,el:'fir',tg:null};
-try{const o=JSON.parse(localStorage.getItem('emmo')||'null');if(o){Object.assign(P.lv,o.lv);Object.assign(P.xp,o.xp);if(o.eq){P.eq=o.eq;P.dw=o.dw;P.da=o.da;P.gold=o.gold||0}P.job=o.job||'fig'}}catch(e){}
-const save=()=>{try{localStorage.setItem('emmo',JSON.stringify({lv:P.lv,xp:P.xp,job:P.job,eq:P.eq,dw:P.dw,da:P.da,gold:P.gold}))}catch(e){}};
+const P={q:{},gold:0,eq:{w:{fig:0,mnk:0,wiz:0,pri:0},a:0},dw:{fig:100,mnk:100,wiz:100,pri:100},da:100,x:0,y:0,hp:1,mp:1,job:'fig',lv:{fig:1,mnk:1,wiz:1,pri:1},xp:{fig:0,mnk:0,wiz:0,pri:0},cd:[0,0,0,0,0],cast:null,pend:null,tx:null,ty:null,buff:0,hurt:0,el:'fir',tg:null};
+try{const o=JSON.parse(localStorage.getItem('emmo')||'null');if(o){Object.assign(P.lv,o.lv);Object.assign(P.xp,o.xp);if(o.eq){P.eq=o.eq;P.dw=o.dw;P.da=o.da;P.gold=o.gold||0}if(o.q)P.q=o.q;P.job=o.job||'fig'}}catch(e){}
+const save=()=>{try{localStorage.setItem('emmo',JSON.stringify({lv:P.lv,xp:P.xp,job:P.job,eq:P.eq,dw:P.dw,da:P.da,gold:P.gold,q:P.q}))}catch(e){}};
 function S(){const j=JOBS[P.job],L=P.lv[P.job],s={};K.forEach(k=>s[k]=10*(j.m[k]||1)+j.g[k]*(L-1));return s}
 function D(){const s=S();return{s,hp:Math.round(50+s.VIT*10),mp:Math.round(20+s.MND*6),pa:s.STR*2+wA(),ma:s.INT*2+wA(),pd:s.DEF+s.VIT*.5+aA(0),md:s.DEF*.5+s.MND+aA(1),dex:s.DEX}}
 const PT=()=>{const d=D(),b=P.buff>0?10:0;return{pd:d.pd,md:d.md,dex:d.dex,res:k=>b}};
@@ -171,7 +171,7 @@ let hu=0;
 function hud(){const d=D(),L=P.lv[P.job];
 $('st').innerHTML=`<b>${MAPS[cur].n}</b>　${P.gold}G　${JOBS[P.job].n} Lv${L}　HP ${Math.ceil(P.hp)}/${d.hp}　MP ${Math.floor(P.mp)}/${d.mp}`+
 `<div class="bar"><i style="width:${P.hp/d.hp*100}%;background:#e44"></i></div><div class="bar"><i style="width:${P.mp/d.mp*100}%;background:#49f"></i></div><div class="bar" style="height:4px"><i style="width:${L>=50?100:P.xp[P.job]/need(L)*100}%;background:#fc3"></i></div>`+
-`<span style="opacity:.7">腕${d.s.STR.toFixed(0)} 知${d.s.INT.toFixed(0)} 体${d.s.VIT.toFixed(0)} 速${d.s.SPD.toFixed(0)} 器${d.s.DEX.toFixed(0)} 防${d.s.DEF.toFixed(0)} 精${d.s.MND.toFixed(0)}　耐久 武${Math.ceil(P.dw[P.job])}/防${Math.ceil(P.da)}</span>`;
+`<span style="opacity:.7">腕${d.s.STR.toFixed(0)} 知${d.s.INT.toFixed(0)} 体${d.s.VIT.toFixed(0)} 速${d.s.SPD.toFixed(0)} 器${d.s.DEX.toFixed(0)} 防${d.s.DEF.toFixed(0)} 精${d.s.MND.toFixed(0)}　耐久 武${Math.ceil(P.dw[P.job])}/防${Math.ceil(P.da)}</span>`+qtrack();
 const t=P.tg;$('tg').style.display=t?'block':'none';
 if(t)$('tg').innerHTML=`${t.d.n} Lv${t.d.lv} <span style="color:${EC[t.d.el]}">●${EN[t.d.el]}</span> 耐性:`+Object.entries(t.d.res).map(([k,v])=>(k=='phy'?'物':EN[k])+(v>0?'+':'')+v).join(' ')+`<div class="bar"><i style="width:${t.hp/t.max*100}%;background:#e44"></i></div>`;
 document.querySelectorAll('.cdv').forEach((c,i)=>{const s=SK(i);c.style.height=P.cd[i]>0?P.cd[i]/s.ct*100+'%':'0'})}
@@ -201,7 +201,7 @@ ED.crab={n:'クラブ',lv:3,s:R([8,4,12,5,5,14,5]),el:'wat',res:{phy:30,wat:30,e
 ED.ogre={n:'オーガ',lv:8,s:R([22,4,30,6,10,22,8]),el:'ear',res:{phy:30,fir:-20},aggro:9,xp:90,col:'#9a5a3a',sp:2.4,ai:2.2,rad:1.1,gold:70};
 const MAPS={
 'MAP-001':{n:'王都',g:0xcbbf9c,sky:0xa9c4dc,st:[0,0],en:[],gt:[[0,-30,'MAP-101'],[30,0,'MAP-102'],[-30,0,'MAP-103'],[0,30,'MAP-104']],
-zn:[[-10,-8,'ショップ','品揃えは準備中（未実装）'],[10,-8,'鍛冶屋','修理は準備中（未実装）'],[-10,8,'ギルド','転職・クエストは準備中（未実装）'],[10,8,'宿屋','ゆっくり休んだ。HP・MPが全回復']],bld:1},
+zn:[[-10,-3.8,'ショップ','品揃えは準備中（未実装）'],[10,-3.8,'鍛冶屋','修理は準備中（未実装）'],[-10,12.2,'ギルド','転職・クエストは準備中（未実装）'],[10,12.2,'宿屋','ゆっくり休んだ。HP・MPが全回復']],bld:1},
 'MAP-101':{n:'北の雪原',g:0xdce6ef,sky:0x9fb4c8,st:[0,30],gt:[[0,36,'MAP-001',0,-25]],
 en:[['slime',-9,8],['slime',0,4],['slime',9,9],['slime',-5,-2],['slime',6,-4],['yeti',-12,-18],['yeti',10,-20],['ogre',-22,-26]]},
 'MAP-102':{n:'東の森',g:0x6f9a62,sky:0x9cc3a0,st:[-30,0],gt:[[-36,0,'MAP-001',25,0]],tree:1,
@@ -220,15 +220,15 @@ const t=new THREE.Mesh(new THREE.CylinderGeometry(.2,.25,1.2),LM(0x6b4a2a)),c=ne
 function goMap(id,sx,sy){const m=MAPS[id];cur=id;E.forEach(e=>{if(e.m)scn.remove(e.m)});E.length=0;m.en&&m.en.forEach(a=>E.push(mk(a[0],a[1],a[2])));E.forEach(roll);
 FX.length=0;fxm.forEach(f=>scn.remove(f.m));fxm.length=0;while(sc3.children.length)sc3.remove(sc3.children[0]);LB.length=0;
 gm.material.color.set(m.g);scn.background.set(m.sky);scn.fog.color.set(m.sky);scenery(m);
-P.x=sx!=null?sx:m.st[0];P.y=sy!=null?sy:m.st[1];lx=P.x;ly=P.y;P.tx=null;P.tg=null;P.cast=null;P.pend=null;P.zone=null;mp('');tl=1.2;log('── '+m.n+' ──')}
+P.x=sx!=null?sx:m.st[0];P.y=sy!=null?sy:m.st[1];lx=P.x;ly=P.y;P.tx=null;P.tg=null;P.cast=null;P.pend=null;P.zone=null;mp('');act(null);tl=1.2;log('── '+m.n+' ──')}
 function openMap(){let d=$('wmap');if(!d){d=document.createElement('div');d.id='wmap';d.className='pn';d.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:240px;z-index:9;display:none';document.body.appendChild(d)}
 if(d.style.display=='block'){d.style.display='none';return}
 d.innerHTML='<b>ワールドマップ</b>'+Object.keys(MAPS).map(k=>'<button data-m="'+k+'" style="width:100%;margin-top:4px;padding:10px">'+MAPS[k].n+(k==cur?'（現在地）':'')+'</button>').join('');
 d.style.display='block';d.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{d.style.display='none';goMap(b.dataset.m)})}
-const ou2=upd;upd=function(dt){ou2(dt);E.forEach(e=>{if(e.wd&&!e.dead)roll(e);e.wd=e.dead});tl=Math.max(0,tl-dt);const m=MAPS[cur];
+const ou2=upd;upd=function(dt){ou2(dt);E.forEach(e=>{if(e.wd&&!e.dead)roll(e);e.wd=e.dead});tl=Math.max(0,tl-dt);const m=MAPS[cur];if(m.bld)for(const b of BL){const dx=P.x-b[0],dz=P.y-b[1];if(Math.abs(dx)<3.3&&Math.abs(dz)<2.8){if(3.3-Math.abs(dx)<2.8-Math.abs(dz))P.x=b[0]+(dx<0?-3.3:3.3);else P.y=b[1]+(dz<0?-2.8:2.8)}}
 if(!tl)for(const g of m.gt)if(Math.hypot(P.x-g[0],P.y-g[1])<1.8){goMap(g[2],g[3],g[4]);return}
-if(m.zn){let z=null;for(const a of m.zn)if(Math.hypot(P.x-a[0],P.y-a[1])<4.5)z=a;
-if(z&&P.zone!=z[2]){P.zone=z[2];log(z[2]+'：'+z[3]);if(z[2]=='宿屋'){const d=D();P.hp=d.hp;P.mp=d.mp}if(z[2]=='ショップ')shop();if(z[2]=='鍛冶屋')smith()}else if(!z&&P.zone){P.zone=null;mp('')}}};
+if(ZN.length){let z=null;for(const a of ZN)if(Math.hypot(P.x-a[0],P.y-a[1])<2.6)z=a;
+if(z&&P.zone!=z[2]){P.zone=z[2];act(z)}else if(!z&&P.zone){P.zone=null;mp('');act(null)}}};
 const od=die;die=function(){od();goMap('MAP-001')};
 const odr=draw;draw=function(){odr();ctx.font='bold 12px sans-serif';ctx.textAlign='center';LB.forEach(b=>{const[x,y]=pj(b.x,b.h,b.y);ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.strokeText(b.t,x,y);ctx.fillText(b.t,x,y)})};
 
@@ -236,7 +236,7 @@ const WT=[10,22,38,60],AT=[[5,3],[12,8],[22,15],[36,26]],WP=[0,150,500,1500],TN=
 function wA(){return P.dw[P.job]>0?WT[P.eq.w[P.job]]:0}
 function aA(i){return P.da>0?AT[P.eq.a][i]:0}
 function roll(e){const b=ED[e.id],x=Math.random()<.15;e.d=x?Object.assign({},b,{n:'強敵 '+b.n,lv:b.lv+3,s:R(K.map(k=>Math.round(b.s[k]*1.6))),xp:b.xp*4,gold:b.gold*3,elite:1}):b;e.max=e.hp=50+e.d.s.VIT*10;if(e.m){scn.remove(e.m);e.m=null}}
-function mp(h,cb){let d=$('mp');if(!d){d=document.createElement('div');d.id='mp';d.className='pn';d.style.cssText='position:fixed;left:50%;top:150px;transform:translateX(-50%);width:270px;z-index:8;display:none';document.body.appendChild(d)}
+function mp(h,cb){let d=$('mp');if(!d){d=document.createElement('div');d.id='mp';d.className='pn';d.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:270px;z-index:8;display:none';document.body.appendChild(d)}
 d.innerHTML=h;d.style.display=h?'block':'none';d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>cb(b.dataset.a))}
 const bt=(a,t,off)=>'<button data-a="'+a+'" style="width:100%;margin-top:3px;padding:7px" '+(off?'disabled':'')+'>'+t+'</button>';
 function shop(){const j=P.job;let h='<b>ショップ</b>　'+P.gold+'G';
@@ -245,6 +245,43 @@ mp(h+bt('x','閉じる'),a=>{if(a=='x')return mp('');const k=a[0],t=+a[1];if(P.g
 function smith(){const j=P.job,tw=P.eq.w[j],ta=P.eq.a,cw=Math.ceil((maxD(tw)-P.dw[j])*(1+tw)*.3),ca=Math.ceil((maxD(ta)-P.da)*(1+ta)*.3);
 mp('<b>鍛冶屋</b>　'+P.gold+'G<br>武器 '+Math.ceil(P.dw[j])+'/'+maxD(tw)+'　防具 '+Math.ceil(P.da)+'/'+maxD(ta)+bt('w','武器を修理　'+cw+'G',!cw||P.gold<cw)+bt('a','防具を修理　'+ca+'G',!ca||P.gold<ca)+bt('x','閉じる'),a=>{
 if(a=='x')return mp('');if(a=='w'&&P.gold>=cw){P.gold-=cw;P.dw[j]=maxD(tw)}if(a=='a'&&P.gold>=ca){P.gold-=ca;P.da=maxD(ta)}save();log('修理した');smith()})}
+
+const BL=[[-10,-8],[10,-8],[-10,8],[10,8]];let az=null;
+function act(z){az=z;let b=$('act');if(!b){b=document.createElement('button');b.id='act';b.style.cssText='position:fixed;left:50%;bottom:calc(190px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:12px 22px;font-size:15px;background:#2f5fa8;z-index:7;display:none;flex:none';
+b.onclick=()=>{const a=az;if(!a)return;if(a[4])talk(a[4]);else if(a[2]=='ショップ')shop();else if(a[2]=='鍛冶屋')smith();else if(a[2]=='宿屋'){const d=D();P.hp=d.hp;P.mp=d.mp;log('ゆっくり休んだ。HP・MPが全回復')}else log(a[2]+'：'+a[3])};document.body.appendChild(b)}
+b.style.display=z?'block':'none';if(z)b.textContent=z[4]?'話す：'+z[2]:z[2]+(z[2]=='宿屋'?'で休む':'に入る')}
+
+let ZN=[];
+const NPCS=[{id:'N1',n:'村長ロイド',map:'MAP-001',x:0,y:-14,col:0x6a4a9a,qs:['QST-S-001','QST-S-004','QST-S-005'],hi:'王都を守ってくれて助かるよ。'},
+{id:'N2',n:'猟師ハンス',map:'MAP-001',x:-20,y:-4,col:0x4a7a3a,qs:['QST-S-002'],hi:'森で会ったらよろしく頼むよ。'},
+{id:'N3',n:'漁師マリン',map:'MAP-001',x:6,y:22,col:0x3a7aaa,qs:['QST-S-003'],hi:'海岸はいい所よ。クラブさえいなければね。'}];
+const QS={
+'QST-S-001':{n:'スライム退治',g:{k:'kill',id:'slime',n:5},rw:{g:100,x:30},t:['王都の周りでスライムが増えて困っている。5匹倒してくれないか。','まだ終わっていないようだな。スライムはどの地域にもいるぞ。','助かった！これは礼だ。']},
+'QST-S-002':{n:'ゴブリンの被害',g:{k:'kill',id:'goblin',n:5},pre:'QST-S-001',rw:{g:250,x:80,w:1},t:['東の森のゴブリンが獲物を荒らすんだ。5匹頼む。礼に鉄の武器をやろう。','ゴブリンは東の森にいる。気をつけてな。','やるじゃないか！約束の鉄の武器だ。']},
+'QST-S-003':{n:'クラブ駆除',g:{k:'kill',id:'crab',n:5},pre:'QST-S-001',rw:{g:250,x:80},t:['南の海岸にクラブが大量発生して船が出せないの。5匹お願い。','クラブは物理に強いわ。魔法が効くかもね。','ありがとう！これで漁に出られるわ。']},
+'QST-S-004':{n:'草原の見回り',g:{k:'reach',map:'MAP-103'},pre:'QST-S-001',rw:{g:150,x:60},t:['西の草原の様子を見てきてほしい。着いたらここへ戻って報告してくれ。','まだ草原に行っていないようだな。','異常なしか。ご苦労だった。']},
+'QST-S-005':{n:'オーガを倒せ',g:{k:'kill',id:'ogre',n:1},pre:'QST-S-002',rw:{g:600,x:300,a:1},t:['雪原の奥と東の森に巨大なオーガが出た。倒せたら鉄の鎧を譲ろう。','オーガは手強い。装備を整えてから行け。','見事だ！この鎧を受け取ってくれ。']}};
+const qok=k=>{const d=QS[k];return !P.q[k]&&(!d.pre||(P.q[d.pre]&&P.q[d.pre].s==3))};
+const rwTxt=r=>r.g+'G　経験値'+r.x+(r.w?'　鉄の武器':'')+(r.a?'　鉄の鎧':'');
+function gx(x){const j=P.job;P.xp[j]+=x;while(P.lv[j]<50&&P.xp[j]>=need(P.lv[j])){P.xp[j]-=need(P.lv[j]);P.lv[j]++;log('★'+JOBS[j].n+'がLv'+P.lv[j]+'に上がった');const d=D();P.hp=d.hp;P.mp=d.mp;build()}save()}
+function reward(r){P.gold+=r.g;gx(r.x);const j=P.job;if(r.w&&P.eq.w[j]<1){P.eq.w[j]=1;P.dw[j]=maxD(1)}if(r.a&&P.eq.a<1){P.eq.a=1;P.da=maxD(1)}save()}
+function qkill(id){for(const k in P.q){const q=P.q[k],g=QS[k].g;if(q.s==1&&g.k=='kill'&&g.id==id){q.c++;log(QS[k].n+' '+q.c+'/'+g.n);if(q.c>=g.n){q.s=2;log('目的達成！依頼主に報告しよう')}save()}}}
+function qtrack(){let h='';for(const k in P.q){const q=P.q[k],d=QS[k];if(q.s==1)h+='<br>◆'+d.n+(d.g.k=='kill'?' '+q.c+'/'+d.g.n:'：'+MAPS[d.g.map].n+'へ行く');else if(q.s==2)h+='<br>◆'+d.n+'（報告へ）'}return h}
+function nmark(n){for(const k of n.qs)if(P.q[k]&&P.q[k].s==2)return'?';for(const k of n.qs)if(qok(k))return'!';return''}
+function talk(id){const n=NPCS.find(x=>x.id==id);let pick=null,mode='';
+for(const k of n.qs)if(P.q[k]&&P.q[k].s==2){pick=k;mode='r';break}
+if(!pick)for(const k of n.qs)if(qok(k)){pick=k;mode='o';break}
+if(!pick)for(const k of n.qs)if(P.q[k]&&P.q[k].s==1){pick=k;mode='p';break}
+const d=pick&&QS[pick],tx=!d?(n.hi||'今は頼みごとはないよ。'):mode=='o'?d.t[0]:mode=='p'?d.t[1]+(d.g.k=='kill'?'（'+P.q[pick].c+'/'+d.g.n+'）':''):d.t[2];
+mp('<b>'+n.n+'</b><br>'+(d?'<span style="color:#fc3">'+d.n+'</span><br>':'')+tx+(mode=='o'?'<br>報酬：'+rwTxt(d.rw)+bt('o','依頼を受ける'):mode=='r'?'<br>報酬：'+rwTxt(d.rw)+bt('r','報告する'):'')+bt('x','閉じる'),a=>{
+if(a=='x')return mp('');if(a=='o'){P.q[pick]={s:1,c:0};log('依頼を受けた：'+d.n);save()}
+if(a=='r'){P.q[pick].s=3;reward(d.rw);log('依頼完了：'+d.n+'（'+rwTxt(d.rw)+'）')}talk(id)})}
+function npcInit(id){ZN=(MAPS[id].zn||[]).concat(NPCS.filter(n=>n.map==id).map(n=>[n.x,n.y,n.n,'',n.id]));
+NPCS.filter(n=>n.map==id).forEach(n=>{const g=human(n.col);g.position.set(n.x,0,n.y);sc3.add(g);LB.push({x:n.x,y:n.y,h:2.4,t:n.n})});
+for(const k in P.q){const q=P.q[k],g=QS[k].g;if(q.s==1&&g.k=='reach'&&g.map==id){q.s=2;log('目的達成！依頼主に報告しよう');save()}}}
+const og=goMap;goMap=function(id,sx,sy){og(id,sx,sy);npcInit(id)};
+const ok2=kill;kill=function(e){ok2(e);qkill(e.id)};
+const odr2=draw;draw=function(){odr2();ctx.font='bold 24px sans-serif';ctx.textAlign='center';NPCS.forEach(n=>{if(n.map!=cur)return;const m=nmark(n);if(!m)return;const[x,y]=pj(n.x,3.3,n.y);ctx.fillStyle=m=='!'?'#ffd84d':'#6f6';ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.strokeText(m,x,y);ctx.fillText(m,x,y)})};
 goMap('MAP-001');
 let lt=performance.now();
 function loop(n){const dt=Math.min(.05,(n-lt)/1000);lt=n;upd(dt);draw();if((hu+=dt)>.08){hu=0;hud()}requestAnimationFrame(loop)}
